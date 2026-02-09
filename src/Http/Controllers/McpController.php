@@ -33,8 +33,8 @@ class McpController extends Controller
                 'version' => 'dev',
             ],
             'capabilities' => [
-                'tools' => (object) [],
-                'resources' => (object) [],
+                'tools' => $this->toolsList($payload) ?? (object) [],
+                'resources' => $this->toolsCall($payload) ?? (object) [],
             ],
         ]);
     }
