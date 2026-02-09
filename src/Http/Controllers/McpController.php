@@ -26,7 +26,7 @@ class McpController extends Controller
     {
         $id = $payload['id'] ?? 1;
         return JsonRpc::result($id, [
-            'protocolVersion' => '2024-11-05',
+            'protocolVersion' => '2025-11-25',
             'serverInfo' => [
                 'name' => 'Neo4j Boost',
                 'vendor' => 'Nagels Tech',
