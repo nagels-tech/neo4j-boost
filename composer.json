@@ -1,0 +1,22 @@
+{
+    "name": "nagels-tech/neo4j-boost",
+    "description": "Bogus MCP server for Neo4j testing and agent development",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+      "psr-4": {
+        "NagelsTech\\Neo4jBoost\\": "src/"
+      }
+    },
+    "extra": {
+      "laravel": {
+        "providers": [
+          "NagelsTech\\Neo4jBoost\\Neo4jBoostServiceProvider"
+        ]
+      }
+    },
+    "require": {
+      "php": "^8.1|^8.2|^8.3|^8.4|^8.5"
+    }
+  }
+  
