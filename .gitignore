@@ -1,0 +1,24 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHP
+.phpunit.result.cache
+phpunit.xml
+coverage/
+
+# Env (if you add .env for local testing)
+.env
+.env.*
+!.env.example
