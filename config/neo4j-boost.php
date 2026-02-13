@@ -1,34 +1,14 @@
 <?php
 
 return [
-    'tools' => [
-        [
-            'name' => 'cypher_query',
-            'description' => 'Executes a Cypher query (fake)',
-            'inputSchema' => [
-                'type' => 'object',
-                'properties' => [
-                    'query' => ['type' => 'string']
-                ],
-                'required' => ['query']
-            ]
-        ],
-        [
-            'name' => 'graph_stats',
-            'description' => 'Returns fake Neo4j graph statistics',
-            'inputSchema' => [
-                'type' => 'object'
-            ]
-        ],
-        [
-            'name' => 'node_lookup',
-            'description' => 'Looks up a node by ID (fake)',
-            'inputSchema' => [
-                'type' => 'object',
-                'properties' => [
-                    'id' => ['type' => 'integer']
-                ]
-            ]
-        ]
-    ]
+    /*
+    |--------------------------------------------------------------------------
+    | Official Neo4j MCP binary (from https://github.com/neo4j/mcp/releases)
+    |--------------------------------------------------------------------------
+    */
+    'neo4j_mcp' => [
+        'version' => 'v1.4.0',
+        'binary_path' => null, // null = use storage_path('app/neo4j-mcp/neo4j-mcp'); set to absolute path to override.
+        'platform_asset' => null, // null = auto-detect (Linux_x86_64, Linux_arm64, Darwin_*, Windows_*). Override e.g. 'Linux_x86_64'.
+    ],
 ];

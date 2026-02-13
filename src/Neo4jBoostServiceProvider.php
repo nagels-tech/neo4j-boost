@@ -2,8 +2,9 @@
 
 namespace Neo4j\LaravelBoost;
 
-use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
+use Neo4j\LaravelBoost\Console\InstallNeo4jMcpCommand;
+use Neo4j\LaravelBoost\Console\Neo4jMcpCommand;
 
 class Neo4jBoostServiceProvider extends ServiceProvider
 {
@@ -14,10 +15,15 @@ class Neo4jBoostServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/mcp.php');
-
         $this->publishes([
             __DIR__ . '/../config/neo4j-boost.php' => config_path('neo4j-boost.php'),
         ], 'neo4j-boost-config');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallNeo4jMcpCommand::class,
+                Neo4jMcpCommand::class,
+            ]);
+        }
     }
 }

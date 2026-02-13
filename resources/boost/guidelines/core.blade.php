@@ -1,14 +1,30 @@
 ## Neo4j Boost
 
-This package provides a fake MCP (Model Context Protocol) server for Neo4j, useful for testing and agent development without a real Neo4j instance.
+This package integrates the official [Neo4j MCP](https://github.com/neo4j/mcp/releases) server into Laravel so you can use Neo4j tools from MCP clients (Cursor, Claude, etc.).
 
-### Features
+### Install the binary
 
-- **MCP endpoint**: `POST /mcp` — JSON-RPC 2.0 (methods: `initialize`, `tools/list`, `tools/call`).
-- **Tools** (all fake): `cypher_query` (args: `query`), `graph_stats` (no args), `node_lookup` (args: `id`).
-- **Config**: Publish with `php artisan vendor:publish --tag=neo4j-boost-config`. Tools are defined in `config/neo4j-boost.php`.
+Run once after installing the package:
 
-### Usage
+```bash
+php artisan neo4j-boost:install-mcp
+```
 
-- To use as an MCP server, point an HTTP MCP client at the app’s `/mcp` URL.
-- Tool list and schemas come from `config('neo4j-boost.tools')`. Add or edit tools in the published config.
+This downloads the Neo4j MCP binary for your platform (Linux x86_64, Darwin, Windows, etc.) from GitHub releases.
+
+### Run the MCP server
+
+Use in your MCP client config (e.g. `.mcp.json`):
+
+```json
+"neo4j": {
+  "command": "php",
+  "args": ["artisan", "neo4j-boost:mcp"]
+}
+```
+
+Set `NEO4J_URI`, `NEO4J_USERNAME`, and `NEO4J_PASSWORD` in your `.env`, or configure a `neo4j` connection in `config/database.php`.
+
+### Config
+
+Publish with `php artisan vendor:publish --tag=neo4j-boost-config`. Options in `config/neo4j-boost.php`: `neo4j_mcp.version`, `neo4j_mcp.binary_path`, `neo4j_mcp.platform_asset`.

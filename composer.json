@@ -1,6 +1,6 @@
 {
     "name": "neo4j/laravel-boost",
-    "description": "Bogus MCP server for Neo4j testing and agent development",
+    "description": "Official Neo4j MCP server integration for Laravel",
     "type": "library",
     "license": "MIT",
     "autoload": {
