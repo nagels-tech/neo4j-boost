@@ -3,6 +3,7 @@
 namespace Neo4j\LaravelBoost;
 
 use Illuminate\Support\ServiceProvider;
+use Neo4j\LaravelBoost\Console\CursorConfigCommand;
 use Neo4j\LaravelBoost\Console\InstallNeo4jMcpCommand;
 use Neo4j\LaravelBoost\Console\Neo4jMcpCommand;
 
@@ -23,6 +24,7 @@ class Neo4jBoostServiceProvider extends ServiceProvider
             $this->commands([
                 InstallNeo4jMcpCommand::class,
                 Neo4jMcpCommand::class,
+                CursorConfigCommand::class,
             ]);
         }
     }

@@ -3,12 +3,14 @@
 namespace Neo4j\LaravelBoost\Console;
 
 use Illuminate\Console\Command;
+use Neo4j\LaravelBoost\CursorMcpConfig;
 use Neo4j\LaravelBoost\Neo4jMcpInstaller;
 
 class InstallNeo4jMcpCommand extends Command
 {
     protected $signature = 'neo4j-boost:install-mcp
-                            {--force : Re-download even if binary already exists}';
+                            {--force : Re-download even if binary already exists}
+                            {--no-cursor-config : Skip creating/updating .cursor/mcp.json}';
 
     protected $description = 'Download and install the official Neo4j MCP binary from GitHub releases';
 
@@ -16,6 +18,7 @@ class InstallNeo4jMcpCommand extends Command
     {
         if ($installer->isInstalled() && ! $this->option('force')) {
             $this->info('Neo4j MCP binary already installed at: ' . $installer->getBinaryPath());
+            $this->writeCursorConfigIfRequested();
             return self::SUCCESS;
         }
 
@@ -29,12 +32,23 @@ class InstallNeo4jMcpCommand extends Command
         try {
             $path = $installer->install();
             $this->info('Neo4j MCP binary installed at: ' . $path);
-            $this->line('Add to your MCP client config (e.g. .mcp.json):');
-            $this->line('  "neo4j": { "command": "php", "args": ["artisan", "neo4j-boost:mcp"] }');
+            $this->writeCursorConfigIfRequested();
             return self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error($e->getMessage());
             return self::FAILURE;
+        }
+    }
+
+    protected function writeCursorConfigIfRequested(): void
+    {
+        if ($this->option('no-cursor-config')) {
+            return;
+        }
+        if (CursorMcpConfig::writeOrMerge(base_path())) {
+            $this->info('Created/updated ' . CursorMcpConfig::getPath(base_path()) . ' for Cursor MCP.');
+        } else {
+            $this->warn('Could not write .cursor/mcp.json. Add the neo4j-boost server to your MCP config manually.');
         }
     }
 }
