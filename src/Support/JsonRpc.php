@@ -1,6 +1,6 @@
 <?php
 
-namespace NagelsTech\Neo4jBoost\Support;
+namespace Neo4j\LaravelBoost\Support;
 
 class JsonRpc
 {

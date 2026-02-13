@@ -1,6 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use NagelsTech\Neo4jBoost\Http\Controllers\McpController;
+use Neo4j\LaravelBoost\Http\Controllers\McpController;
 
 Route::post('/mcp', McpController::class);

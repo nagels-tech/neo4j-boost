@@ -1,6 +1,6 @@
 <?php
 
-namespace NagelsTech\Neo4jBoost\Mcp;
+namespace Neo4j\LaravelBoost\Mcp;
 
 class ToolRegistry
 {

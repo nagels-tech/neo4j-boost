@@ -1,12 +1,12 @@
 <?php
 
-namespace NagelsTech\Neo4jBoost\Http\Controllers;
+namespace Neo4j\LaravelBoost\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use NagelsTech\Neo4jBoost\Support\JsonRpc;
-use NagelsTech\Neo4jBoost\Mcp\ToolRegistry;
-use NagelsTech\Neo4jBoost\Mcp\FakeNeo4jExecutor;
+use Neo4j\LaravelBoost\Support\JsonRpc;
+use Neo4j\LaravelBoost\Mcp\ToolRegistry;
+use Neo4j\LaravelBoost\Mcp\FakeNeo4jExecutor;
 
 class McpController extends Controller
 {

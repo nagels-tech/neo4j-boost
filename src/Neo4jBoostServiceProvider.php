@@ -1,6 +1,6 @@
 <?php
 
-namespace NagelsTech\Neo4jBoost;
+namespace Neo4j\LaravelBoost;
 
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
