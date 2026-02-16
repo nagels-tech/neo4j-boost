@@ -73,6 +73,9 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
                 throw new \RuntimeException('Neo4j MCP initialize failed: ' . $msg);
             }
 
+            // MCP requires client to send initialized notification before the operation phase (tools/call).
+            $this->writeNotification($stdin, 'notifications/initialized');
+
             // Send tools/call. Only the top-level arguments map is sent as {} when empty; nested values (e.g. params: []) stay as-is.
             $params = [
                 'name' => $toolName,
@@ -120,6 +123,23 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
             'method' => $method,
             'params' => $params,
         ];
+        $line = json_encode($payload) . "\n";
+        if (fwrite($stream, $line) === false) {
+            throw new \RuntimeException('Failed to write to Neo4j MCP stdin.');
+        }
+        fflush($stream);
+    }
+
+    /** @param array<string, mixed> $params */
+    private function writeNotification($stream, string $method, array $params = []): void
+    {
+        $payload = [
+            'jsonrpc' => '2.0',
+            'method' => $method,
+        ];
+        if ($params !== []) {
+            $payload['params'] = $params;
+        }
         $line = json_encode($payload) . "\n";
         if (fwrite($stream, $line) === false) {
             throw new \RuntimeException('Failed to write to Neo4j MCP stdin.');
