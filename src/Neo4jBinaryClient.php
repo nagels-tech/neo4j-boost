@@ -127,21 +127,36 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
         fflush($stream);
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * Read JSON-RPC response with id matching $expectedId. Skips notifications (no id) and
+     * out-of-order responses so we do not treat the wrong message as success.
+     *
+     * @return array<string, mixed>
+     */
     private function readResponse($stream, int $expectedId): array
     {
-        $line = fgets($stream);
-        if ($line === false) {
-            throw new \RuntimeException('Neo4j MCP did not respond.');
+        $maxAttempts = 100;
+
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            $line = fgets($stream);
+            if ($line === false) {
+                throw new \RuntimeException('Neo4j MCP did not respond.');
+            }
+            $decoded = json_decode(trim($line), true);
+            if (! is_array($decoded)) {
+                throw new \RuntimeException('Neo4j MCP returned invalid JSON.');
+            }
+            // Notifications have no id; skip them
+            if (! array_key_exists('id', $decoded)) {
+                continue;
+            }
+            // Only accept the response that matches our request id
+            if ((int) $decoded['id'] === $expectedId) {
+                return $decoded;
+            }
         }
-        $decoded = json_decode(trim($line), true);
-        if (! is_array($decoded)) {
-            throw new \RuntimeException('Neo4j MCP returned invalid JSON.');
-        }
-        if (isset($decoded['id']) && (int) $decoded['id'] !== $expectedId) {
-            // Still return so caller can check error/result
-        }
-        return $decoded;
+
+        throw new \RuntimeException('Neo4j MCP did not return a response for request id ' . $expectedId . '.');
     }
 
     /** @param array<string, mixed> $arr */
