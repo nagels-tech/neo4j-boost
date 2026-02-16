@@ -43,13 +43,14 @@ class Neo4jBoostServiceProvider extends ServiceProvider
     /**
      * When Laravel Boost is present, add our Neo4j tools to boost.mcp.tools.include
      * so one MCP server (boost:mcp) exposes both Boost and official Neo4j tools.
+     * Gate on Boost being installed (ToolRegistry) rather than config file existence.
      */
     private function mergeBoostToolsWhenBoostPresent(): void
     {
         if (! class_exists(\Laravel\Mcp\Server\Tool::class)) {
             return;
         }
-        if (! config_path('boost.php') || ! is_file(config_path('boost.php'))) {
+        if (! class_exists(\Laravel\Boost\Mcp\ToolRegistry::class)) {
             return;
         }
 
