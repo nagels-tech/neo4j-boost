@@ -20,13 +20,16 @@ php artisan neo4j-boost:cursor-config
 
 ### Run the MCP server
 
-Open this Laravel app folder in Cursor and enable the neo4j-boost MCP server. The config in `.cursor/mcp.json` uses `command: "php"`, `args: ["artisan", "neo4j-boost:mcp"]`.
+- **With Laravel Boost:** Use a single MCP server: run `php artisan boost:mcp`. This package adds the official Neo4j tools (get-schema, read-cypher, write-cypher, list-gds-procedures) to Boost’s server automatically. Tools use **stdio** (local binary) or **HTTP** (remote MCP URL) depending on `config/neo4j-boost.transport`.
+- **Without Boost:** Use the standalone server. Open this Laravel app folder in Cursor and enable the neo4j-boost MCP server. The config in `.cursor/mcp.json` uses `command: "php"`, `args: ["artisan", "neo4j-boost:mcp"]`.
 
 Set `NEO4J_URI`, `NEO4J_USERNAME`, and `NEO4J_PASSWORD` in your `.env`, or configure a `neo4j` connection in `config/database.php`.
 
+**GDS (list-gds-procedures):** Install the Graph Data Science plugin in Neo4j. With Docker, set `NEO4J_PLUGINS: '["apoc", "graph-data-science"]'`, `NEO4J_dbms_security_procedures_unrestricted: 'apoc.*,gds.*'`, and `NEO4J_dbms_security_procedures_allowlist: 'apoc.*,gds.*'`.
+
 ### Config
 
-Publish with `php artisan vendor:publish --tag=neo4j-boost-config`. Options in `config/neo4j-boost.php`: `neo4j_mcp.version`, `neo4j_mcp.binary_path`, `neo4j_mcp.platform_asset`.
+Publish with `php artisan vendor:publish --tag=neo4j-boost-config`. Options in `config/neo4j-boost.php`: `transport` (stdio | http), `neo4j_mcp.*` (binary), `http.url` / `http.username` / `http.password` (when transport is http).
 
 ### Cursor: "Loading tools" stuck
 
