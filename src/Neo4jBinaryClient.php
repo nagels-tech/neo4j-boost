@@ -34,11 +34,25 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
         $binary = $this->installer->getBinaryPath();
         $env = $this->buildEnv();
 
-        $descriptors = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ];
+        $logFile = storage_path('logs/neo4j-mcp.log');
+        if (! is_dir(dirname($logFile))) {
+            @mkdir(dirname($logFile), 0755, true);
+        }
+        $stderrTarget = @fopen($logFile, 'a');
+        if ($stderrTarget === false) {
+            $stderrTarget = PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null';
+            $descriptors = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['file', $stderrTarget, 'w'],
+            ];
+        } else {
+            $descriptors = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => $stderrTarget,
+            ];
+        }
 
         $proc = proc_open(
             [$binary],
@@ -49,13 +63,15 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
         );
 
         if (! is_resource($proc)) {
+            if (is_resource($stderrTarget)) {
+                fclose($stderrTarget);
+            }
             throw new \RuntimeException('Failed to start Neo4j MCP process.');
         }
 
         try {
             $stdin = $pipes[0];
             $stdout = $pipes[1];
-            $stderr = $pipes[2];
 
             // Send initialize
             $this->writeRequest($stdin, self::INIT_ID, 'initialize', [
@@ -95,6 +111,9 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
                 if (is_resource($p)) {
                     fclose($p);
                 }
+            }
+            if (isset($stderrTarget) && is_resource($stderrTarget)) {
+                fclose($stderrTarget);
             }
             proc_close($proc);
         }
