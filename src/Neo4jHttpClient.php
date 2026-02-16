@@ -2,17 +2,19 @@
 
 namespace Neo4j\LaravelBoost;
 
+use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Support\Facades\Http;
 use Neo4j\LaravelBoost\Contracts\Neo4jMcpClientInterface;
 
 /**
  * HTTP client for the Neo4j MCP server.
- * Sends JSON-RPC tools/call to the configured URL (e.g. neo4j-mcp in Docker with HTTP transport).
+ * Performs MCP handshake (initialize, notifications/initialized) then tools/call.
  */
 class Neo4jHttpClient implements Neo4jMcpClientInterface
 {
     private const int TIMEOUT = 60;
-    private const int TOOL_REQUEST_ID = 1;
+    private const int INIT_ID = 1;
+    private const int TOOL_CALL_ID = 2;
 
     public function callTool(string $toolName, array $arguments = []): array
     {
@@ -20,26 +22,61 @@ class Neo4jHttpClient implements Neo4jMcpClientInterface
         $username = config('neo4j-boost.http.username');
         $password = config('neo4j-boost.http.password');
 
-        // Only the top-level arguments map is sent as {} when empty; nested values (e.g. params: []) stay as [].
+        $cookieJar = new CookieJar;
+        $client = Http::timeout(self::TIMEOUT)
+            ->acceptJson()
+            ->asJson()
+            ->withOptions(['cookies' => $cookieJar]);
+
+        if ($username !== null && $password !== null) {
+            $client = $client->withBasicAuth($username, $password);
+        }
+
+        // 1. Initialize (required before tool operations)
+        $initPayload = [
+            'jsonrpc' => '2.0',
+            'id' => self::INIT_ID,
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2024-11-05',
+                'capabilities' => new \stdClass,
+                'clientInfo' => [
+                    'name' => 'neo4j-laravel-boost',
+                    'version' => '1.0',
+                ],
+            ],
+        ];
+        $initResponse = $client->post($url, $initPayload);
+        if ($initResponse->failed()) {
+            throw new \RuntimeException(
+                'Neo4j MCP HTTP initialize failed (status ' . $initResponse->status() . '). ' . trim((string) $initResponse->body())
+            );
+        }
+        $initBody = $initResponse->json();
+        if (is_array($initBody) && isset($initBody['error'])) {
+            $msg = is_array($initBody['error']) && isset($initBody['error']['message'])
+                ? $initBody['error']['message']
+                : (string) json_encode($initBody['error']);
+            throw new \RuntimeException('Neo4j MCP HTTP initialize: ' . $msg);
+        }
+
+        // 2. Initialized notification (enters operation phase)
+        $client->post($url, [
+            'jsonrpc' => '2.0',
+            'method' => 'notifications/initialized',
+        ]);
+
+        // 3. tools/call
         $payload = [
             'jsonrpc' => '2.0',
-            'id' => self::TOOL_REQUEST_ID,
+            'id' => self::TOOL_CALL_ID,
             'method' => 'tools/call',
             'params' => [
                 'name' => $toolName,
                 'arguments' => $arguments === [] ? new \stdClass : $arguments,
             ],
         ];
-
-        $request = Http::timeout(self::TIMEOUT)
-            ->acceptJson()
-            ->asJson();
-
-        if ($username !== null && $password !== null) {
-            $request = $request->withBasicAuth($username, $password);
-        }
-
-        $response = $request->post($url, $payload);
+        $response = $client->post($url, $payload);
 
         if ($response->failed()) {
             throw new \RuntimeException(
