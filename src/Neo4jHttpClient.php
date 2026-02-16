@@ -20,13 +20,14 @@ class Neo4jHttpClient implements Neo4jMcpClientInterface
         $username = config('neo4j-boost.http.username');
         $password = config('neo4j-boost.http.password');
 
+        // Only the top-level arguments map is sent as {} when empty; nested values (e.g. params: []) stay as [].
         $payload = [
             'jsonrpc' => '2.0',
             'id' => self::TOOL_REQUEST_ID,
             'method' => 'tools/call',
             'params' => [
                 'name' => $toolName,
-                'arguments' => $arguments === [] ? new \stdClass : $this->ensureObjectsForEmptyArrays($arguments),
+                'arguments' => $arguments === [] ? new \stdClass : $arguments,
             ],
         ];
 
@@ -59,19 +60,5 @@ class Neo4jHttpClient implements Neo4jMcpClientInterface
         }
 
         return $body['result'] ?? [];
-    }
-
-    /** @param array<string, mixed> $payload */
-    private function ensureObjectsForEmptyArrays(array $payload): array|object
-    {
-        $out = [];
-        foreach ($payload as $k => $v) {
-            if (is_array($v)) {
-                $out[$k] = $v === [] ? new \stdClass : $this->ensureObjectsForEmptyArrays($v);
-            } else {
-                $out[$k] = $v;
-            }
-        }
-        return $out;
     }
 }

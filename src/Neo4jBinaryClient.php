@@ -73,10 +73,10 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
                 throw new \RuntimeException('Neo4j MCP initialize failed: ' . $msg);
             }
 
-            // Send tools/call
+            // Send tools/call. Only the top-level arguments map is sent as {} when empty; nested values (e.g. params: []) stay as-is.
             $params = [
                 'name' => $toolName,
-                'arguments' => $arguments === [] ? new \stdClass : $this->objectsForEmptyArrays($arguments),
+                'arguments' => $arguments === [] ? new \stdClass : $arguments,
             ];
             $this->writeRequest($stdin, self::TOOL_CALL_ID, 'tools/call', $params);
 
@@ -157,19 +157,5 @@ class Neo4jBinaryClient implements Neo4jMcpClientInterface
         }
 
         throw new \RuntimeException('Neo4j MCP did not return a response for request id ' . $expectedId . '.');
-    }
-
-    /** @param array<string, mixed> $arr */
-    private function objectsForEmptyArrays(array $arr): array|object
-    {
-        $out = [];
-        foreach ($arr as $k => $v) {
-            if (is_array($v)) {
-                $out[$k] = $v === [] ? new \stdClass : $this->objectsForEmptyArrays($v);
-            } else {
-                $out[$k] = $v;
-            }
-        }
-        return $out;
     }
 }
