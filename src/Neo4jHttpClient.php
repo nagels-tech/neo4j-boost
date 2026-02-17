@@ -2,7 +2,6 @@
 
 namespace Neo4j\LaravelBoost;
 
-use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Support\Facades\Http;
 use Neo4j\LaravelBoost\Contracts\Neo4jMcpClientInterface;
 
@@ -22,11 +21,7 @@ class Neo4jHttpClient implements Neo4jMcpClientInterface
         $username = config('neo4j-boost.http.username');
         $password = config('neo4j-boost.http.password');
 
-        $cookieJar = new CookieJar;
-        $client = Http::timeout(self::TIMEOUT)
-            ->acceptJson()
-            ->asJson()
-            ->withOptions(['cookies' => $cookieJar]);
+        $client = Http::timeout(self::TIMEOUT)->acceptJson()->asJson();
 
         if ($username !== null && $password !== null) {
             $client = $client->withBasicAuth($username, $password);
