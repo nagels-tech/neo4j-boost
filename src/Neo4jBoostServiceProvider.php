@@ -4,8 +4,6 @@ namespace Neo4j\LaravelBoost;
 
 use Illuminate\Support\ServiceProvider;
 use Neo4j\LaravelBoost\Console\CursorConfigCommand;
-use Neo4j\LaravelBoost\Console\InstallNeo4jMcpCommand;
-use Neo4j\LaravelBoost\Console\Neo4jMcpCommand;
 use Neo4j\LaravelBoost\Contracts\Neo4jMcpClientInterface;
 
 class Neo4jBoostServiceProvider extends ServiceProvider
@@ -14,13 +12,7 @@ class Neo4jBoostServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/neo4j-boost.php', 'neo4j-boost');
 
-        $this->app->singleton(Neo4jMcpClientInterface::class, function ($app) {
-            $transport = config('neo4j-boost.transport', 'stdio');
-            if ($transport === 'http') {
-                return new Neo4jHttpClient;
-            }
-            return new Neo4jBinaryClient($app->make(Neo4jMcpInstaller::class));
-        });
+        $this->app->singleton(Neo4jMcpClientInterface::class, fn () => new Neo4jHttpClient);
     }
 
     public function boot(): void
@@ -33,8 +25,6 @@ class Neo4jBoostServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                InstallNeo4jMcpCommand::class,
-                Neo4jMcpCommand::class,
                 CursorConfigCommand::class,
             ]);
         }

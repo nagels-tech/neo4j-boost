@@ -9,11 +9,7 @@ class CursorMcpConfig
     public static function getDefaultServerConfig(): array
     {
         return [
-            'command' => 'php',
-            'args' => ['artisan', 'neo4j-boost:mcp'],
-            'env' => [
-                'NEO4J_TELEMETRY' => 'false',
-            ],
+            'url' => config('neo4j-boost.http.url', 'http://localhost:8080/mcp'),
         ];
     }
 

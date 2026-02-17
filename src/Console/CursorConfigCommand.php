@@ -9,7 +9,7 @@ class CursorConfigCommand extends Command
 {
     protected $signature = 'neo4j-boost:cursor-config';
 
-    protected $description = 'Create or update .cursor/mcp.json with the neo4j-boost MCP server (merges with existing servers)';
+    protected $description = 'Create or update .cursor/mcp.json with the neo4j-boost MCP server URL (merges with existing servers)';
 
     public function handle(): int
     {

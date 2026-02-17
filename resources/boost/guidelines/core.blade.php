@@ -2,37 +2,41 @@
 
 This package integrates the official [Neo4j MCP](https://github.com/neo4j/mcp/releases) server into Laravel so you can use Neo4j tools from MCP clients (Cursor, Claude, etc.).
 
-### Install the binary
+### HTTP only
 
-Run once after installing the package:
+The package talks to the Neo4j MCP server over **HTTP only**. Run the Neo4j MCP server elsewhere (e.g. Docker) with HTTP transport, then set in `.env`:
 
-```bash
-php artisan neo4j-boost:install-mcp
+```env
+NEO4J_MCP_URL=http://localhost:8080/mcp
+NEO4J_MCP_USERNAME=neo4j   # optional
+NEO4J_MCP_PASSWORD=...     # optional
 ```
 
-This downloads the Neo4j MCP binary for your platform (Linux x86_64, Darwin, Windows, etc.) from GitHub releases. It also creates or updates `.cursor/mcp.json` in the app root with the neo4j-boost server (merged with any existing MCP servers). Use `--no-cursor-config` to skip writing the Cursor config.
+### Cursor config
 
-To only create/update the Cursor MCP config without (re)downloading the binary:
+To add the Neo4j MCP server to Cursor’s MCP config (using the same HTTP URL):
 
 ```bash
 php artisan neo4j-boost:cursor-config
 ```
 
+This creates or updates `.cursor/mcp.json` with the server URL from config (merged with existing servers).
+
 ### Run the MCP server
 
-- **With Laravel Boost:** Use a single MCP server: run `php artisan boost:mcp`. This package adds the official Neo4j tools (get-schema, read-cypher, write-cypher, list-gds-procedures) to Boost’s server automatically. Tools use **stdio** (local binary) or **HTTP** (remote MCP URL) depending on `config/neo4j-boost.transport`.
-- **Without Boost:** Use the standalone server. Open this Laravel app folder in Cursor and enable the neo4j-boost MCP server. The config in `.cursor/mcp.json` uses `command: "php"`, `args: ["artisan", "neo4j-boost:mcp"]`.
+- **With Laravel Boost:** Use a single MCP server: run `php artisan boost:mcp`. This package adds the official Neo4j tools (get-schema, read-cypher, write-cypher, list-gds-procedures) to Boost’s server automatically. Tools call the HTTP MCP URL from `config/neo4j-boost.http`.
+- **Without Boost:** Add the Neo4j MCP server to Cursor as an HTTP server. Run `php artisan neo4j-boost:cursor-config` so `.cursor/mcp.json` includes the `neo4j-boost` server with the configured URL.
 
-Set `NEO4J_URI`, `NEO4J_USERNAME`, and `NEO4J_PASSWORD` in your `.env`, or configure a `neo4j` connection in `config/database.php`.
+Set `NEO4J_URI`, `NEO4J_USERNAME`, and `NEO4J_PASSWORD` where the Neo4j MCP server runs (and in Laravel if you use the Neo4j driver).
 
 **GDS (list-gds-procedures):** Install the Graph Data Science plugin in Neo4j. With Docker, set `NEO4J_PLUGINS: '["apoc", "graph-data-science"]'`, `NEO4J_dbms_security_procedures_unrestricted: 'apoc.*,gds.*'`, and `NEO4J_dbms_security_procedures_allowlist: 'apoc.*,gds.*'`.
 
 ### Config
 
-Publish with `php artisan vendor:publish --tag=neo4j-boost-config`. Options in `config/neo4j-boost.php`: `transport` (stdio | http), `neo4j_mcp.*` (binary), `http.url` / `http.username` / `http.password` (when transport is http).
+Publish with `php artisan vendor:publish --tag=neo4j-boost-config`. Options in `config/neo4j-boost.php`: `http.url`, `http.username`, `http.password`.
 
 ### Cursor: "Loading tools" stuck
 
-- Open your **Laravel app folder** (the project where you ran `composer require neo4j/laravel-boost`) as the Cursor workspace, not the neo4j-boost package folder. The MCP server must run with the app as the current working directory.
-- If `.cursor/mcp.json` is missing, run `php artisan neo4j-boost:cursor-config` to create it (or re-run `neo4j-boost:install-mcp`).
-- Server logs (and any errors) are written to `storage/logs/neo4j-mcp.log` in the app. Check that file if the server fails to load tools.
+- Open your **Laravel app folder** (the project where you ran `composer require neo4j/laravel-boost`) as the Cursor workspace, not the neo4j-boost package folder.
+- If `.cursor/mcp.json` is missing, run `php artisan neo4j-boost:cursor-config` to create it.
+- Ensure the Neo4j MCP server is running at the URL set in `NEO4J_MCP_URL` and that it is started with HTTP transport.
