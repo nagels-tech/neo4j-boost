@@ -39,6 +39,8 @@ class Neo4jBoostServiceProvider extends ServiceProvider
     private function mergeBoostToolsWhenBoostPresent(): void
     {
         if (! class_exists(\Laravel\Mcp\Server\Tool::class)) {
+            Log::warning('Laravel MCP is not installed. Neo4j MCP tools will not be added to Boost. Install laravel/boost to expose them via boost:mcp.');
+
             return;
         }
         if (! class_exists(\Laravel\Boost\Mcp\ToolRegistry::class)) {
