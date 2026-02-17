@@ -2,6 +2,7 @@
 
 namespace Neo4j\LaravelBoost;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Neo4j\LaravelBoost\Console\CursorConfigCommand;
 use Neo4j\LaravelBoost\Contracts\Neo4jMcpClientInterface;
@@ -41,6 +42,8 @@ class Neo4jBoostServiceProvider extends ServiceProvider
             return;
         }
         if (! class_exists(\Laravel\Boost\Mcp\ToolRegistry::class)) {
+            Log::warning('Laravel Boost is not installed. Neo4j MCP tools will not be added to Boost. Install laravel/boost to expose them via boost:mcp.');
+
             return;
         }
 
