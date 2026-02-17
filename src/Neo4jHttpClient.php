@@ -21,7 +21,9 @@ class Neo4jHttpClient implements Neo4jMcpClientInterface
         $username = config('neo4j-boost.http.username');
         $password = config('neo4j-boost.http.password');
 
-        $client = Http::timeout(self::TIMEOUT)->acceptJson()->asJson();
+        $client = Http::timeout(self::TIMEOUT)
+            ->withHeaders(['Accept' => 'application/json, text/event-stream'])
+            ->asJson();
 
         if ($username !== null && $password !== null) {
             $client = $client->withBasicAuth($username, $password);
