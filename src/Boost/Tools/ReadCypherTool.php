@@ -34,10 +34,10 @@ final class ReadCypherTool extends Tool
 
         $validated = $validator->validated();
         $params = $validated['params'] ?? [];
-        
+
         $arguments = [
             'query' => $validated['query'],
-            'params' => $params === [] || array_is_list($params) ? new \stdClass : $params,
+            'params' => $params === [] ? new \stdClass : $params,
         ];
 
         $result = $this->client->callTool('read-cypher', $arguments);
