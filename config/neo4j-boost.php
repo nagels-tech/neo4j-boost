@@ -3,12 +3,14 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Official Neo4j MCP binary (from https://github.com/neo4j/mcp/releases)
+    | HTTP MCP server
     |--------------------------------------------------------------------------
+    | URL of the Neo4j MCP server (e.g. neo4j-mcp in Docker with HTTP on port 8080).
+    | Optional Basic Auth (e.g. Neo4j username/password if required by the server).
     */
-    'neo4j_mcp' => [
-        'version' => 'v1.4.0',
-        'binary_path' => null, // null = use storage_path('app/neo4j-mcp/neo4j-mcp'); set to absolute path to override.
-        'platform_asset' => null, // null = auto-detect (Linux_x86_64, Linux_arm64, Darwin_*, Windows_*). Override e.g. 'Linux_x86_64'.
+    'http' => [
+        'url' => env('NEO4J_MCP_URL', 'http://localhost:8080/mcp'),
+        'username' => env('NEO4J_MCP_USERNAME', env('NEO4J_USERNAME')),
+        'password' => env('NEO4J_MCP_PASSWORD', env('NEO4J_PASSWORD')),
     ],
 ];
