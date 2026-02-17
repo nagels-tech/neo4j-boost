@@ -38,11 +38,7 @@ final class ReadCypherTool extends Tool
             'params' => $validated['params'] ?? [],
         ];
 
-        try {
-            $result = $this->client->callTool('read-cypher', $arguments);
-        } catch (\Throwable $e) {
-            return Response::error($e->getMessage());
-        }
+        $result = $this->client->callTool('read-cypher', $arguments);
 
         if (! empty($result['isError'])) {
             $msg = $this->extractErrorText($result['content'] ?? []);

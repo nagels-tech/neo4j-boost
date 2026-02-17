@@ -21,11 +21,7 @@ final class ListGdsProceduresTool extends Tool
 
     public function handle(Request $request): Response
     {
-        try {
-            $result = $this->client->callTool('list-gds-procedures', []);
-        } catch (\Throwable $e) {
-            return Response::error($e->getMessage());
-        }
+        $result = $this->client->callTool('list-gds-procedures', []);
 
         if (! empty($result['isError'])) {
             $msg = $this->extractErrorText($result['content'] ?? []);

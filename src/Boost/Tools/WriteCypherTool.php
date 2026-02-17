@@ -36,11 +36,7 @@ final class WriteCypherTool extends Tool
             'params' => $validated['params'] ?? [],
         ];
 
-        try {
-            $result = $this->client->callTool('write-cypher', $arguments);
-        } catch (\Throwable $e) {
-            return Response::error($e->getMessage());
-        }
+        $result = $this->client->callTool('write-cypher', $arguments);
 
         if (! empty($result['isError'])) {
             $msg = $this->extractErrorText($result['content'] ?? []);

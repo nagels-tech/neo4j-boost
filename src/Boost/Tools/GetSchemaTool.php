@@ -21,11 +21,7 @@ final class GetSchemaTool extends Tool
 
     public function handle(Request $request): Response
     {
-        try {
-            $result = $this->client->callTool('get-schema', []);
-        } catch (\Throwable $e) {
-            return Response::error($e->getMessage());
-        }
+        $result = $this->client->callTool('get-schema', []);
 
         if (! empty($result['isError'])) {
             $msg = $this->extractErrorText($result['content'] ?? []);

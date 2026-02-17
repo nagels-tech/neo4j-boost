@@ -29,15 +29,11 @@ class InstallNeo4jMcpCommand extends Command
         }
 
         $this->info('Downloading ' . $asset . ' ...');
-        try {
-            $path = $installer->install();
-            $this->info('Neo4j MCP binary installed at: ' . $path);
-            $this->writeCursorConfigIfRequested();
-            return self::SUCCESS;
-        } catch (\Throwable $e) {
-            $this->error($e->getMessage());
-            return self::FAILURE;
-        }
+        $path = $installer->install();
+        $this->info('Neo4j MCP binary installed at: ' . $path);
+        $this->writeCursorConfigIfRequested();
+
+        return self::SUCCESS;
     }
 
     protected function writeCursorConfigIfRequested(): void
