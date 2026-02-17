@@ -55,6 +55,14 @@ class Neo4jHttpClient implements Neo4jMcpClientInterface
             throw new \RuntimeException('Neo4j MCP HTTP initialize: ' . $msg);
         }
 
+        $sessionId = $initResponse->header('Mcp-Session-Id') ?? $initResponse->header('mcp-session-id');
+        if (is_array($sessionId)) {
+            $sessionId = $sessionId[0] ?? null;
+        }
+        if ($sessionId !== null && $sessionId !== '') {
+            $client = $client->withHeaders(['Mcp-Session-Id' => $sessionId]);
+        }
+
         // 2. Initialized notification (enters operation phase)
         $client->post($url, [
             'jsonrpc' => '2.0',
